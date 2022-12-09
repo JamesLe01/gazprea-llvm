@@ -1,0 +1,49 @@
+// Nested loops and breaks
+
+typedef integer int;
+typedef boolean bool;
+typedef character char;
+typedef real float;
+
+const int INT_MAX = 2147483647;
+const int INT_MIN = -2147483648;
+const float INT_MAX_IN_FLOAT = 2.14748e+09;
+const float FLOAT_MAX = 3.40282347e+38;
+
+procedure nl() {
+    "\n" -> std_out;
+}
+
+procedure vecFil() {
+    int i = 5;
+    var x = [i in 1..i & i >= 1+2];
+    var z = [i in [i in [i in INT_MIN..(INT_MIN+10) | i] | i] & i < as<int>(INT_MIN+(INT_MIN+10-INT_MIN)/2), i == -2147483638];
+    
+    x.1 -> std_out; // Should print 3, 4, 5 
+    call nl();
+    length(x.1) -> std_out; // Should print 3
+    call nl(); 
+
+    z.1 -> std_out; // Should print -2147483648 -2147483647 -2147483646 -2147483645 -2147483644
+    call nl();
+    length(z.1) -> std_out; // Should print 5
+    call nl();
+    z.2 -> std_out; // Should print -2147483638
+    call nl();
+    length(z.2) -> std_out; // Should print 1
+    call nl();
+
+}
+
+procedure main() returns int {
+    call vecFil();
+    return 0;
+}
+#split_token
+#split_token
+[3 4 5]
+3
+[-2147483648 -2147483647 -2147483646 -2147483645 -2147483644]
+5
+[-2147483638]
+1

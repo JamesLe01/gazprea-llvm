@@ -737,12 +737,46 @@ void variableInitFromBinaryOpWithSpecTypes(Variable *this, Variable *op1, Variab
 void variableInitFromConcat(Variable *this, Variable *op1, Variable *op2) {
     Type *op1Type = op1->m_type;
     Type *op2Type = op2->m_type;
+    if (typeIsIntegerInterval(op1Type)) {
+        if (typeIsEmptyArray(op2Type)) {
+            variableInitFromPCADPToIntegerVector(this, op1, &pcadpCastConfig);
+            return;
+        }
+        if (!typeIsVectorOrString(op2Type)) {
+            doubleTypeError(op1Type, op2Type, "Attempt to concat with two types:");
+        }
+        ArrayType *CTI = op2Type->m_compoundTypeInfo;
+        if (CTI->m_elementTypeID != ELEMENT_INTEGER && CTI->m_elementTypeID != ELEMENT_REAL)
+            doubleTypeError(op1Type, op2Type, "Attempt to concat with two types:");
+        Variable *pop1 = variableMalloc();
+        variableInitFromPCADPToIntegerVector(pop1, op1, &pcadpCastConfig);
+        variableInitFromConcat(this, pop1, op2);
+        variableDestructThenFreeImpl(pop1);
+        return;
+    } else if (typeIsIntegerInterval(op2Type)) {
+        if (typeIsEmptyArray(op1Type)) {
+            variableInitFromPCADPToIntegerVector(this, op2, &pcadpCastConfig);
+            return;
+        }
+        if (!typeIsVectorOrString(op1Type)) {
+            doubleTypeError(op1Type, op2Type, "Attempt to concat with two types:");
+        }
+        ArrayType *CTI = op1Type->m_compoundTypeInfo;
+        if (CTI->m_elementTypeID != ELEMENT_INTEGER && CTI->m_elementTypeID != ELEMENT_REAL)
+            doubleTypeError(op1Type, op2Type, "Attempt to concat with two types:");
+        Variable *pop2 = variableMalloc();
+        variableInitFromPCADPToIntegerVector(pop2, op2, &pcadpCastConfig);
+        variableInitFromConcat(this, op1, pop2);
+        variableDestructThenFreeImpl(pop2);
+        return;
+    }
+
     int8_t op1nDim = typeGetNDArrayNDims(op1Type);
     int8_t op2nDim = typeGetNDArrayNDims(op2Type);
     if (op1nDim == DIM_INVALID || op1nDim == 2) {
-        singleTypeError(op1Type, "Attempt to concat with type: ");
+        doubleTypeError(op1Type, op2Type, "Attempt to concat with two types of wrong dimensions:");
     } else if (op1nDim == DIM_INVALID || op2nDim == 2) {
-        singleTypeError(op2Type, "Attempt to concat with type: ");
+        doubleTypeError(op1Type, op2Type, "Attempt to concat with two types of wrong dimensions:");
     }
 
     // [] || [] -> []

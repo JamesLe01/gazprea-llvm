@@ -1,0 +1,30 @@
+// Nested loops and breaks
+
+typedef integer int;
+typedef boolean bool;
+typedef character char;
+typedef real float;
+
+const int INT_MAX = 2147483647;
+const int INT_MIN = -2147483648;
+
+procedure vecGen() {
+    int[*] vec = [x in (-2147483648)..(-2147483640) | x];
+    real[*] vec2 = [x in [1.2, 1.3, 1.4, 1.5] | [y in [0.8, 0.9, 1.0, 1.1] | y][as<int>(x)] + x];
+    vec -> std_out;
+    '\n' -> std_out;
+    vec[1] -> std_out; // Should print -2147483648
+    '\n' -> std_out;
+    vec2 -> std_out; // Should print [2 2.1 2.2 2.3]
+    '\n' -> std_out;
+}
+
+procedure main() returns int {
+    call vecGen();
+    return 0;
+}
+#split_token
+#split_token
+[-2147483648 -2147483647 -2147483646 -2147483645 -2147483644 -2147483643 -2147483642 -2147483641 -2147483640]
+-2147483648
+[2 2.1 2.2 2.3]
